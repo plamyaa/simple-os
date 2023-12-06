@@ -8,15 +8,15 @@ print_string_pm:
     mov edx, VIDEO_MEMORY
 
 print_string_pm_loop:
-    mov al, [ebx] ; the address of character
+    mov al, [ebx]           ; the address of character
     mov ah, WHITE_ON_BLACK
 
     cmp al, 0
     je print_string_pm_done
 
     mov [edx], ax
-    add ebx, 1 ; next char
-    add edx, 2 ; next video memory position
+    add ebx, 1              ; next char
+    add edx, 2              ; next video memory position
 
     jmp print_string_pm_loop
 

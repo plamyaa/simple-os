@@ -1,10 +1,10 @@
 [bits 16]
-switch_to_pm:
-    cli ; disable interrupts
-    lgdt [gdt_descriptor]
-    mov eax, cr0
-    or eax, 0x1 ; set 32-bit mode in cr0
-    mov cr0, eax
+switch_to_pm:             ; protected mode
+    cli                   ; disable interrupts
+    lgdt [gdt_descriptor] ; load GDT
+    mov eax, cr0          ; control register
+    or eax, 0x1           ; set 32-bit mode in cr0
+    mov cr0, eax          ; enabling PM
     jmp CODE_SEG:init_pm
 
 [bits 32]
