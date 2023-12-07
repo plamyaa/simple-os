@@ -1,13 +1,12 @@
 #include "screen.h"
-#include "ports.h"
-#include "../kernel/utils.h"
+#include "../drivers/ports.h"
 
-static int get_cursor_offset();
-static void set_cursor_offset(int offset);
-static int print_char(char c, int col, int row, char attr);
-static int get_offset(int col, int row);
-static int get_offset_row(int offset);
-static int get_offset_col(int offset);
+int get_cursor_offset();
+void set_cursor_offset(int offset);
+int print_char(char c, int col, int row, char attr);
+int get_offset(int col, int row);
+int get_offset_row(int offset);
+int get_offset_col(int offset);
 
 void
 kprint_at(char *message, int col, int row)
