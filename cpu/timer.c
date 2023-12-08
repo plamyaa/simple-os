@@ -1,7 +1,7 @@
 #include "timer.h"
-#include "../drivers/screen.h"
-#include "../kernel/utils.h"
 #include "isr.h"
+#include "ports.h"
+#include "../libc/function.h"
 
 
 u32 tick = 0;
@@ -9,13 +9,8 @@ u32 tick = 0;
 static void
 timer_callback(registers_t r)
 {
-    char tick_ascii[256];
     tick++;
-    kprint("Tick: ");
-
-    int_to_ascii(tick, tick_ascii);
-    kprint(tick_ascii);
-    kprint("\n");
+    UNUSED(r);
 }
 
 void

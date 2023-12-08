@@ -1,5 +1,6 @@
 #include "screen.h"
-#include "../drivers/ports.h"
+#include "../cpu/ports.h"
+#include "../libc/mem.h"
 
 int get_cursor_offset();
 void set_cursor_offset(int offset);
@@ -38,10 +39,10 @@ void
 clear_screen()
 {
     int   screen_size, i;
-    char *screen;
+    u8 *screen;
 
     screen_size = MAX_COLS * MAX_ROWS;
-    screen = VIDEO_ADDRESS;
+    screen = (u8 *) VIDEO_ADDRESS;
 
     for (i = 0; i < screen_size; i++) {
         screen[i * 2] = ' ';
@@ -50,14 +51,23 @@ clear_screen()
     set_cursor_offset(get_offset(0, 0));
 }
 
+void
+kprint_backspace()
+{
+    int offset = get_cursor_offset() - 2;
+    int row = get_offset_row(offset);
+    int col = get_offset_col(offset);
+    print_char(0x08, col, row, WHITE_ON_BLACK);
+}
+
 int
 print_char(char c, int col, int row, char attr)
 {
-    unsigned char *vidmem;
-    char          *last_line;
-    int            offset, i;
+    u8   *vidmem;
+    char *last_line;
+    int   offset, i;
 
-    vidmem = (unsigned char *) VIDEO_ADDRESS;
+    vidmem = (u8 *) VIDEO_ADDRESS;
     if (!attr) {
         attr = WHITE_ON_BLACK;
     }
@@ -77,6 +87,9 @@ print_char(char c, int col, int row, char attr)
     if (c == '\n') {
         row = get_offset_row(offset);
         offset = get_offset(0, row + 1);
+    } else if (c == 0x08) { // Backspace
+        vidmem[offset] = ' ';
+        vidmem[offset + 1] = attr;
     } else {
         vidmem[offset] = c;
         vidmem[offset + 1] = attr;
@@ -85,12 +98,12 @@ print_char(char c, int col, int row, char attr)
 
     if (offset >= MAX_ROWS * MAX_COLS * 2) {
         for (i = 1; i < MAX_ROWS; i++) {
-            memory_copy(get_offset(0, i) + VIDEO_ADDRESS,
-                        get_offset(0, i - 1) + VIDEO_ADDRESS,
+            memory_copy((u8 *) get_offset(0, i) + VIDEO_ADDRESS,
+                        (u8 *) get_offset(0, i - 1) + VIDEO_ADDRESS,
                         MAX_COLS * 2);
         }
 
-        last_line = get_offset(0, MAX_ROWS - 1) + VIDEO_ADDRESS;
+        last_line = (char *) (get_offset(0, MAX_ROWS - 1) + (u8*)VIDEO_ADDRESS);
         for (i = 0; i < MAX_COLS * 2; i++) {
             last_line[i] = 0;
         }
@@ -117,9 +130,9 @@ set_cursor_offset(int offset)
 {
     offset /= 2;
     port_byte_out(REG_SCREEN_CTRL, 14);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char) (offset >> 8));
+    port_byte_out(REG_SCREEN_DATA, (u8) (offset >> 8));
     port_byte_out(REG_SCREEN_CTRL, 15);
-    port_byte_out(REG_SCREEN_DATA, (unsigned char) (offset & 0xff));
+    port_byte_out(REG_SCREEN_DATA, (u8) (offset & 0xff));
 }
 
 int
