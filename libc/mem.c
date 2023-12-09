@@ -17,3 +17,22 @@ memory_set(u8 *dest, u8 val, u32 len)
         *temp++ = val;
     }
 }
+
+u32 free_mem_adr = 0x10000;
+
+u32
+kmalloc(u32 size, int align, u32 *phys_adr)
+{
+    if (align == 1 && (free_mem_adr & 0xFFFFF000)) {
+        free_mem_adr &= 0xFFFFF000;
+        free_mem_adr += 0x1000;
+    }
+
+    if (phys_adr) {
+        *phys_adr = free_mem_adr;
+    }
+
+    u32 ret = free_mem_adr;
+    free_mem_adr += size;
+    return ret;
+}
