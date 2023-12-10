@@ -72,17 +72,17 @@ extern void irq15();
 #define IRQ15 47
 
 typedef struct {
-    u32 ds;                                     // data segment
-    u32 edi, esi, ebp, esp, eax, ebx, ecx, edx; // pushed by pusha
-    u32 int_no, err_code;             // interrupt number and error code
-    u32 eip, cs, eflags, useresp, ss; // pushed by proccessor automaticaly
+    uint32_t ds;                                     // data segment
+    uint32_t edi, esi, ebp, useles, eax, ebx, ecx, edx; // pushed by pusha
+    uint32_t int_no, err_code;             // interrupt number and error code
+    uint32_t eip, cs, eflags, esp, ss; // pushed by proccessor automaticaly
 } registers_t;
 
 void isr_install();
-void isr_handler(registers_t r);
+void isr_handler(registers_t *r);
 void irq_install();
 
-typedef void (*isr_t) (registers_t);
-void register_interrupt_handler(u8 n, isr_t handler);
+typedef void (*isr_t) (registers_t *);
+void register_interrupt_handler(uint8_t n, isr_t handler);
 
 #endif

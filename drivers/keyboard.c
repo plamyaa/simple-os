@@ -28,9 +28,9 @@ const char sc_ascii[] = { '?', '?', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 };
 
 static void
-keyboard_callback(registers_t r)
+keyboard_callback(registers_t *r)
 {
-    u8 scancode;
+    uint8_t scancode;
 
     scancode = port_byte_in(0x60); //The PIC leaves us the scancode in port 0x60
     if (scancode > SC_MAX) {

@@ -1,4 +1,7 @@
+global _start;
 [bits 32]
-[extern main]
-call main
-jmp $
+
+_start:
+    [extern kernel_main] ; Define calling point. Must have same name as kernel.c 'main' function
+    call kernel_main
+    jmp $

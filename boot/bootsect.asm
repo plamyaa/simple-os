@@ -1,24 +1,24 @@
-; A boot sector that boots a C kernel
+; Identical to lesson 13's boot sector, but the %included files have new paths
 [org 0x7c00]
-KERNEL_OFFSET equ 0x1000 ; The same that we used when linking the kernel
-    mov [BOOT_DRIVE], dl ; BIOS sets us the boot drive in 'dl' on boot
+KERNEL_OFFSET equ 0x1000 ; The same one we used when linking the kernel
 
-    mov bp, 0x9000       ; Set-up the stack
+    mov [BOOT_DRIVE], dl ; Remember that the BIOS sets us the boot drive in 'dl' on boot
+    mov bp, 0x9000
     mov sp, bp
 
-    mov bx, MSG_REAL_MODE ; Announce that we are starting
-    call print            ; Booting from 16-bit real mode
+    mov bx, MSG_REAL_MODE 
+    call print
     call print_nl
 
-    call load_kernel
-    call switch_to_pm
-    jmp $
+    call load_kernel ; read the kernel from disk
+    call switch_to_pm ; disable interrupts, load GDT,  etc. Finally jumps to 'BEGIN_PM'
+    jmp $ ; Never executed
 
 %include "boot/print.asm"
 %include "boot/print_hex.asm"
 %include "boot/disk.asm"
 %include "boot/gdt.asm"
-%include "boot/32bit-print.asm"
+%include "boot/32bit_print.asm"
 %include "boot/switch_pm.asm"
 
 [bits 16]
@@ -28,8 +28,8 @@ load_kernel:
     call print_nl
 
     mov bx, KERNEL_OFFSET
-    mov dh, 15              ; Load first 15 sectors to KERNEL_OFFSET
-    mov dl, [BOOT_DRIVE]    ; Drive number
+    mov dh, 31
+    mov dl, [BOOT_DRIVE]
     call disk_load
     ret
 
@@ -37,17 +37,16 @@ load_kernel:
 BEGIN_PM:
     mov ebx, MSG_PROT_MODE
     call print_string_pm
+    call KERNEL_OFFSET ; Give control to the kernel
+    jmp $ ; Stay here when the kernel returns control to us (if ever)
 
-    call KERNEL_OFFSET      ; Jump to the address of loaded kernel code
 
-    jmp $
-
-; Global variables
-BOOT_DRIVE db 0
-MSG_REAL_MODE db " Started in 16 - bit Real Mode " , 0
-MSG_PROT_MODE db " Successfully landed in 32 - bit Protected Mode " , 0
-MSG_LOAD_KERNEL db " Loading kernel into memory. " , 0
+BOOT_DRIVE db 0 ; It is a good idea to store it in memory because 'dl' may get overwritten
+MSG_REAL_MODE db "Started in 16-bit Real Mode", 0
+MSG_PROT_MODE db "Landed in 32-bit Protected Mode", 0
+MSG_LOAD_KERNEL db "Loading kernel into memory", 0
+MSG_RETURNED_KERNEL db "Returned from kernel. Error?", 0
 
 ; Bootsector padding
-times 510-($-$$) db 0
+times 510 - ($-$$) db 0
 dw 0xaa55

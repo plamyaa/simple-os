@@ -1,29 +1,29 @@
 #include "ports.h"
 
-u8
-port_byte_in(u16 port)
+uint8_t
+port_byte_in(int16_t port)
 {
-    u8 result;
-    __asm__("in %%dx, %%al" : "=a" (result) : "d" (port));
+    uint8_t result;
+    asm("in %%dx, %%al" : "=a" (result) : "d" (port));
     return result;
 }
 
 void
-port_byte_out(u16 port, u8 data)
+port_byte_out(int16_t port, uint8_t data)
 {
-    __asm__("out %%al, %%dx" : : "a" (data), "d" (port));
+    asm("out %%al, %%dx" : : "a" (data), "d" (port));
 }
 
-u16
-port_word_in(u16 port)
+int16_t
+port_word_in(int16_t port)
 {
-    u16 result;
-    __asm__("in %%dx, %%ax" : "=a" (result) : "d" (port));
+    int16_t result;
+    asm("in %%dx, %%ax" : "=a" (result) : "d" (port));
     return result;
 }
 
 void
-port_word_out(u16 port, u16 data)
+port_word_out(int16_t port, int16_t data)
 {
-    __asm__("out %%ax, %%dx" : : "a" (data), "d" (port));
+    asm("out %%ax, %%dx" : : "a" (data), "d" (port));
 }

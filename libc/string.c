@@ -1,5 +1,5 @@
 #include "string.h"
-#include "../cpu/type.h"
+#include <stdint.h>
 
 void
 int_to_ascii(int n, char str[])
@@ -26,9 +26,9 @@ int_to_ascii(int n, char str[])
 void
 hex_to_ascii(int n, char str[])
 {
-    char zeros = 0;
-    s32  tmp;
-    int  i;
+    char    zeros = 0;
+    int32_t tmp;
+    int     i;
 
     append(str, '0');
     append(str, 'x');
